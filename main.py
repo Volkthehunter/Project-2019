@@ -1,3 +1,4 @@
+!pip install opencv-python
 import cv2
 import module1
 import math
