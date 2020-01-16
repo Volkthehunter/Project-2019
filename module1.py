@@ -49,12 +49,15 @@ def detect(gray, frame):
                 print(mouth_feat_get(frame,mw,mh))
         nose = nose_cascade.detectMultiScale(roi_gray, 1.1, 1)
         for (nx,ny,nw,nh) in nose:
-            nosepos=nx+nw//2
-            if nosepos-facepos[0]>nw:
-                continue
-            cv2.rectangle(roi_color, (nx,ny), (nx+nw, ny+nh), (128, 128, 0), 1)
-            print(nose_feat_get(frame,nw,nh))
-            nose_done+=1
+            if nose_done==0:
+                nosepos=nx+nw//2
+                if nosepos-facepos[0]>nw:
+                    continue
+                cv2.rectangle(roi_color, (nx,ny), (nx+nw, ny+nh), (128, 128, 0), 1)
+                print(nose_feat_get(frame,nw,nh))
+                nose_done+=1
+            else: 
+                break
         lear = lear_cascade.detectMultiScale(roi_gray, 1.1, 1)
         for (leax,leay,leaw,leah) in lear:
             cv2.rectangle(roi_color, (leax,leay), (leax+leaw, leay+leah), (255, 255, 255), 1)
@@ -64,9 +67,10 @@ def eye_feat_get(frame,ew,eh,w,h):
     eyewperh=ew/eh
     eyelength=math.sqrt(ew^2+eh^2)
     eyelengthperface=ew/w
+    eyeareaperface=ew*eh/w/h
     if eyelength==0:
         return None
-    eye_feat=('Eye',eyewperh,eyelength,eyelengthperface)
+    eye_feat=('Eye',eyewperh,eyelength,eyelengthperface,eyeareaperface)
     return eye_feat
 def face_feat_get(frame,w,h):
     facewperh=w/h
