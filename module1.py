@@ -1,6 +1,6 @@
 import cv2
 import math
-
+from person import *
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_alt.xml')
 eye_cascade = cv2.CascadeClassifier("haarcascade_eye.xml")
 body_cascade = cv2.CascadeClassifier('haarcascade_fullbody.xml')
@@ -9,6 +9,8 @@ mouth_cascade = cv2.CascadeClassifier('haarcascade_mcs_mouth.xml')
 nose_cascade = cv2.CascadeClassifier('haarcascade_mcs_nose.xml')
 lear_cascade =cv2.CascadeClassifier('haarcascade_mcs_leftear.xml')
 
+
+    
 def detect(gray, frame):
     """ Input = greyscale image or frame from video stream
       Output = Image with rectangle box in the face
@@ -24,6 +26,9 @@ def detect(gray, frame):
         roi_gray = gray[y:y+h, x:x+w]
         roi_color = frame[y:y+h, x:x+w]
         face_feat=feat_get(frame,w,h,w,h)
+        eye_feat=None
+        mouth_feat=None
+        nose_feat=None
         eyes = eye_cascade.detectMultiScale(roi_gray, 1.1, 3)
         for (ex, ey, ew, eh) in eyes:
             if eye_done==2:
@@ -61,13 +66,28 @@ def detect(gray, frame):
         lear = lear_cascade.detectMultiScale(roi_gray, 1.1, 1)
         for (leax,leay,leaw,leah) in lear:
             cv2.rectangle(roi_color, (leax,leay), (leax+leaw, leay+leah), (255, 255, 255), 1)
-        
+        if eye_feat!=None and face_feat!=None or mouth_feat!=None and nose_feat!=None:
+            a=person(eye_feat,face_feat,mouth_feat,nose_feat)
+            a.attrchk()
+            print(a)
     return frame
-
+class Person:
+    def __init__(self,eye_feat,face_feat,mouth_feat,nose_feat):
+        self.face_feat=[face_feat,eye_feat,mouth_feat,nose_feat]
+        self.attrchk()
+    def attrchk(self):
+        for i in self.face_feat:
+            if i == None:
+                del self
+    def __del__(self):
+        print("STFU")
+    def __str__(self):
+        return self.face_feat
 def feat_get(frame,pw,ph,w,h):
     partwperh=pw/ph
     partlengthperface=[pw/w,pw/h]
     partareaperface=pw*ph/w/h
     if pw==0 or ph==0:
         return None
-    part_feat=[partwperh,partlengthperface,partareaperface]
+    else:
+        return [partwperh,partlengthperface,partareaperface]
