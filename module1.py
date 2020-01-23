@@ -23,20 +23,20 @@ def detect(gray, frame):
         cv2.line(frame, (x,y), (x+w, y+h), (255,0,0), 1)
         roi_gray = gray[y:y+h, x:x+w]
         roi_color = frame[y:y+h, x:x+w]
-        face_feat=feat_get(frame,w,h))
+        face_feat=feat_get(frame,w,h,w,h)
         eyes = eye_cascade.detectMultiScale(roi_gray, 1.1, 3)
         for (ex, ey, ew, eh) in eyes:
             if eye_done==2:
                 break
             cv2.rectangle(roi_color, (ex,ey), (ex+ew, ey+eh), (0, 255, 0), 1)
-            eye_feat=feat_get(frame,ew,eh,w,h))
+            eye_feat=feat_get(frame,ew,eh,w,h)
             eye_done+=1
             eyepos=ey+eh//2
         if eye_done!=2:
             glass_eye=glass_cascade.detectMultiScale(roi_gray, 1.1, 1)
             for (gx, gy, gw, gh) in glass_eye:
                 cv2.rectangle(roi_color, (gx,gy), (gx+gw, gy+gh), (255, 255, 0), 1)
-                eye_feat=feat_get(frame,gw,gh,w,h))
+                eye_feat=feat_get(frame,gw,gh,w,h)
                 eyepos=gy+gh//2
                 eye_done+=1
         mouth = mouth_cascade.detectMultiScale(roi_gray, 1.1, 1)
@@ -46,7 +46,7 @@ def detect(gray, frame):
                 continue
             else:
                 cv2.rectangle(roi_color, (mx,my), (mx+mw, my+mh), (0, 255, 255), 1)
-                mouth_feat=feat_get(frame,mw,mh))
+                mouth_feat=feat_get(frame,mw,mh,w,h)
         nose = nose_cascade.detectMultiScale(roi_gray, 1.1, 1)
         for (nx,ny,nw,nh) in nose:
             if nose_done==0:
@@ -54,7 +54,7 @@ def detect(gray, frame):
                 if nosepos-facepos[0]>nw:
                     continue
                 cv2.rectangle(roi_color, (nx,ny), (nx+nw, ny+nh), (128, 128, 0), 1)
-                nose_feat=feat_get(frame,nw,nh))
+                nose_feat=feat_get(frame,nw,nh,w,h)
                 nose_done+=1
             else: 
                 break
@@ -64,7 +64,7 @@ def detect(gray, frame):
         
     return frame
 
-def feat_get(pw,ph,w,h):
+def feat_get(frame,pw,ph,w,h):
     partwperh=pw/ph
     partlengthperface=[pw/w,pw/h]
     partareaperface=pw*ph/w/h
